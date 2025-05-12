@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <h2>Login</h2>
+  <form id="loginForm">
+    <input type="text" id="username" placeholder="Username atau Email" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <button type="submit">Login</button>
+  </form>
+
+  <p>Belum punya akun? <a href="register.html">Register</a></p>
+
+  <script src="js/auth.js"></script>
+  <script>
+    // Fungsi toggle password visibility
+    function togglePassword() {
+      const passwordField = document.getElementById('password');
+      const toggleIcon = document.querySelector('.toggle-password i');
+      
+      if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        toggleIcon.classList.replace('fa-eye', 'fa-eye-slash');
+      } else {
+        passwordField.type = 'password';
+        toggleIcon.classList.replace('fa-eye-slash', 'fa-eye');
+      }
+    }
+
+    // Fungsi login yang sudah ada
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const data = {
+        username: document.getElementById("username").value,
+        password: document.getElementById("password").value
+      };
+
+      const response = await fetch("http://localhost:8080/api/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      if (response.ok) {
+        const token = await response.text();
+        saveToken(token);
+        window.location.href = "dashboard.html";
+      } else {
+        alert("Login gagal!");
+      }
+    });
+  </script>
+</body>
+</html>

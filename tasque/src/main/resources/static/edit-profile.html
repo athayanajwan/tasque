@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Edit Profil</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <h2>Edit Profil</h2>
+  <form id="editProfileForm">
+    <input type="text" id="username" placeholder="Username" required />
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="password" id="password" placeholder="Password baru" required />
+    <button type="submit">Simpan Perubahan</button>
+  </form>
+
+  <p><a href="dashboard.html">Kembali ke Dashboard</a></p>
+
+  <script src="js/auth.js"></script>
+  <script>
+    if (!isAuthenticated()) {
+      window.location.href = "login.html";
+    }
+
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId");
+
+    // Ambil data user untuk ditampilkan di form
+    fetch("http://localhost:8080/api/users/me", {
+      headers: {
+        "Authorization": "Bearer " + token
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById("username").value = data.username;
+      document.getElementById("email").value = data.email;
+    });
+
+    // Saat submit form, kirim PUT request
+    document.getElementById("editProfileForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const updatedData = {
+        username: document.getElementById("username").value,
+        email: document.getElementById("email").value,
+        password: document.getElementById("password").value
+      };
+
+      const response = await fetch(`http://localhost:8080/api/users/me`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify(updatedData)
+      });
+
+      if (response.ok) {
+        alert("Profil berhasil diperbarui!");
+        window.location.href = "dashboard.html";
+      } else {
+        alert("Gagal memperbarui profil.");
+      }
+    });
+  </script>
+</body>
+</html>
