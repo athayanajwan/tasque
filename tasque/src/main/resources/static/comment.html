@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<h3>Komentar</h3>
+<div id="comment-section"></div>
+
+<form onsubmit="addComment(); return false;">
+    <textarea id="commentText" required></textarea><br>
+    <button type="submit">Kirim</button>
+</form>
+
+<script>
+function loadComments(taskId) {
+    fetch(`http://localhost:8080/api/comments/${taskId}`)
+        .then(res => res.json())
+        .then(data => {
+            const section = document.getElementById("comment-section");
+            section.innerHTML = "";
+            data.forEach(c => {
+                section.innerHTML += `<p><strong>User ${c.userId}</strong>: ${c.content}</p>`;
+            });
+        });
+}
+
+function addComment() {
+    const comment = {
+        taskId: 1,
+        userId: 2,
+        content: document.getElementById("commentText").value
+    };
+
+    fetch("http://localhost:8080/api/comments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(comment)
+    })
+    .then(() => loadComments(comment.taskId));
+}
+
+loadComments(1);
+</script>
