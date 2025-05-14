@@ -15,6 +15,8 @@ import com.example.tasque.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Date;
+import java.time.ZoneId;
 
 
 import java.time.LocalDateTime;
@@ -30,7 +32,7 @@ public class NotificationService {
         notif.setRecipientId(dto.getRecipientId());
         notif.setMessage(dto.getMessage());
         notif.setType(dto.getType());
-        notif.setCreatedAt(LocalDateTime.now());
+        notif.setCreatedAt(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
         notif.setRead(false);
 
         return notificationRepository.save(notif);
