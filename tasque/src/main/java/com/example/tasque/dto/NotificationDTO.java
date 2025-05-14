@@ -17,10 +17,8 @@ public class NotificationDTO {
     private String message;
     private NotificationType type;
 
-    // Constructor default
     public NotificationDTO() {}
 
-    // Getter & Setter
     public String getRecipientId() {
         return recipientId;
     }
