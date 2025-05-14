@@ -9,9 +9,9 @@ package com.example.tasque.model;
  * @author regianyogaswara
  */
 
-
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @Entity
 public class Notification {
@@ -20,21 +20,28 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String recipientId; // ID user yang menerima notifikasi
+    private String recipientId; 
 
     private String message;
 
     private boolean isRead;
 
-    private LocalDateTime createdAt;
+    private Date createdAt;
 
     @Enumerated(EnumType.STRING)
     private NotificationType type;
 
-    // Constructor default
     public Notification() {}
 
-    // Getter dan Setter
+    public void readNotif() {
+        this.isRead = true;
+    }
+
+    public String getDate() {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return formatter.format(createdAt);
+    }
+
     public Long getId() {
         return id;
     }
@@ -63,11 +70,11 @@ public class Notification {
         this.isRead = isRead;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Date getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 
@@ -79,5 +86,3 @@ public class Notification {
         this.type = type;
     }
 }
-
-
