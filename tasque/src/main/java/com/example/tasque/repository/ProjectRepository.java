@@ -17,3 +17,4 @@ public interface ProjectRepository extends JpaRepository<Project, String> {
     List<Project> findByMembersContaining(User user);
     List<Project> findByCreatedBy(User user);
 }
+

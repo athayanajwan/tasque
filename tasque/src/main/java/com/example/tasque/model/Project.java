@@ -29,6 +29,9 @@ public class Project {
 
     @ManyToMany
     private List<User> members = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Task> task = new ArrayList<>();
 
     public Project() {}
 
@@ -42,6 +45,13 @@ public class Project {
         this.members = new ArrayList<>();
     }
 
+
+
+    
+    
+
+
+
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
@@ -50,6 +60,11 @@ public class Project {
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+
+
+
+    public List<Task> getTask() { return task; }
+    public void setTask(List<Task> task) { this.task = task; }
 
     public Date getCreatedAt() { return createdAt; }
     public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
@@ -62,4 +77,36 @@ public class Project {
 
     public List<User> getMembers() { return members; }
     public void setMembers(List<User> members) { this.members = members; }
+
+
+    public double getProgress() {
+        if (task == null || task.isEmpty()) return 0.0;
+
+        long completed = task.stream()
+                .filter(t -> t.getStatus() == TaskStatus.COMPLETED)
+                .count();
+
+        return (completed * 100.0) / task.size();
+    }
+
+    public boolean addMember(User user) {
+        return members.add(user);
+    }
+
+    public boolean removeMember(String userId) {
+        return members.removeIf(user -> user.getId().equals(userId));
+    }
+
+    public boolean addTask(Task task) {
+        task.setProject(this);
+        return this.task.add(task);
+    }
+
+    public boolean removeTask(String taskId) {
+        return task.removeIf(t -> t.getTitle().equals(taskId));
+    }
+
+    public void displayProgress() {
+        System.out.println("Project Progress: " + getProgress() + "%");
+    }
 }

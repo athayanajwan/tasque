@@ -18,11 +18,13 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+
 @Service
 public class ProjectService {
 
     @Autowired
     private ProjectRepository projectRepository;
+
 
     @Autowired
     private UserRepository userRepository;
@@ -104,4 +106,16 @@ public class ProjectService {
             project.getDeadline()
         );
     }
+    
+    public double getProjectProgress(String projectId) {
+        Optional<Project> projectOpt = projectRepository.findById(projectId);
+
+        if (projectOpt.isEmpty()) {
+            throw new IllegalArgumentException("Project with ID " + projectId + " not found.");
+        }
+
+        Project project = projectOpt.get();
+        return project.getProgress();
+    }
+    
 }

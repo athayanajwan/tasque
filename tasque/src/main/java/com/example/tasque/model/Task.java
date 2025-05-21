@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.util.Date;
 
 @Entity
+@Table(name = "tasks")
 public class Task {
 
     @Id
@@ -22,8 +23,11 @@ public class Task {
     private Date createdAt;
     private Date deadline;
 
-    public Task() {
-    }
+    @ManyToOne
+    @JoinColumn(name = "project_id")
+    private Project project;
+
+    public Task() {}
 
     public String getId() {
         return id;
@@ -79,5 +83,13 @@ public class Task {
 
     public void setDeadline(Date deadline) {
         this.deadline = deadline;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
     }
 }
