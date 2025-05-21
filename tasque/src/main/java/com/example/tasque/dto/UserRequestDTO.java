@@ -16,10 +16,13 @@ public class UserRequestDTO {
     
     private String username;
 
-    
     private String password;
 
     private String email;
+    
+    private String phoneNumber;
+    
+    private String deskripsi;
 
     public UserRequestDTO() {}
 
@@ -29,6 +32,14 @@ public class UserRequestDTO {
         this.email = email;
     }
 
+    public UserRequestDTO(String username, String email, String password, String phoneNumber, String deskripsi) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.phoneNumber = phoneNumber;
+        this.deskripsi = deskripsi;
+    }
+    
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
 
@@ -37,4 +48,20 @@ public class UserRequestDTO {
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+    
+    public String getPhoneNumber(){
+        return phoneNumber;
+    }
+    
+    public void setPhoneNumber(String number){
+        this.phoneNumber = number;
+    }
+    
+    public String getDeskripsi(){
+        return deskripsi;
+    }
+    
+    public void setDeskripsi(String deskripsi){
+        this.deskripsi = deskripsi;
+    }
 }

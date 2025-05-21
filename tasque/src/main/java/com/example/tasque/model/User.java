@@ -24,6 +24,12 @@ public class User {
     @Column(nullable = false)
     private String password;
     
+    @Column
+    private String phoneNumber;
+    
+    @Column
+    private String deskripsi;
+    
     public User(){}
     
     public User(String id, String username, String email, String password){
@@ -59,5 +65,21 @@ public class User {
     
     public void setPassword(String password){
         this.password = password;
+    }
+    
+    public String getPhoneNumber(){
+        return phoneNumber;
+    }
+    
+    public void setPhoneNumber(String number){
+        this.phoneNumber = number;
+    }
+    
+    public String getDeskripsi(){
+        return deskripsi;
+    }
+    
+    public void setDeskripsi(String deskripsi){
+        this.deskripsi = deskripsi;
     }
 }

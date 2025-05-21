@@ -8,6 +8,7 @@ import com.example.tasque.dto.UserResponseDTO;
 import com.example.tasque.model.User;
 import com.example.tasque.repository.UserRepository;
 import com.example.tasque.security.JwtUtil;
+import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -58,7 +59,6 @@ public class UserService {
 
 
         User user = userRepository.findByUsername(request.getUsername())
-                .or(() -> userRepository.findByEmail(request.getUsername()))
                 .orElseThrow(() -> new UsernameNotFoundException("Username/Password salah"));
         
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
@@ -86,22 +86,30 @@ public class UserService {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
         
+        if (!Objects.equals(user.getPhoneNumber(), request.getPhoneNumber())) {
+            user.setPhoneNumber(request.getPhoneNumber());
+        }
+
+        if (!Objects.equals(user.getDeskripsi(), request.getDeskripsi())) {
+            user.setDeskripsi(request.getDeskripsi());
+        }
+        
         userRepository.save(user);
         
-        return new UserResponseDTO(user.getId(), user.getUsername(), user.getEmail());
+        return new UserResponseDTO(user.getId(), user.getUsername(), user.getEmail(), user.getPhoneNumber(), user.getDeskripsi());
     }
     
     public UserResponseDTO getCurrentUser(String username) {
         User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
         
-        return new UserResponseDTO(user.getId(), user.getUsername(), user.getEmail());
+        return new UserResponseDTO(user.getId(), user.getUsername(), user.getEmail(), user.getPhoneNumber(), user.getDeskripsi());
     }
     
     public UserResponseDTO updateCurrentUser(String username, UserRequestDTO request) {
     User user = userRepository.findByUsername(username)
         .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-    return updateProfile(user.getId(), request); // Gunakan metode yang sudah ada
+    return updateProfile(user.getId(), request);
     }
 }

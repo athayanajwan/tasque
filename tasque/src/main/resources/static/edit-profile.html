@@ -5,11 +5,22 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <h2>Profil user</h2>
+  <div>
+  <p><strong>Id:</strong> <span id="display-id"></span></p>
+  <p><strong>Username:</strong> <span id="display-username"></span></p>
+  <p><strong>Email:</strong> <span id="display-email"></span></p>
+  <p><strong>No. HP:</strong> <span id="display-phoneNumber"></span></p>
+  <p><strong>Deskripsi:</strong></p>
+  <p id="display-deskripsi"></p>
+  </div>
   <h2>Edit Profil</h2>
   <form id="editProfileForm">
-    <input type="text" id="username" placeholder="Username" required />
-    <input type="email" id="email" placeholder="Email" required />
-    <input type="password" id="password" placeholder="Password baru" required />
+    <input type="text" id="username" placeholder="Username"/>
+    <input type="email" id="email" placeholder="Email"/>
+    <input type="password" id="password" placeholder="Password baru"/>
+    <input type="text" id="phoneNumber" placeholder="nomor telepon baru"/>
+    <input type="text" id="deskripsi" placeholder="deskripsi"/>
     <button type="submit">Simpan Perubahan</button>
   </form>
 
@@ -32,8 +43,16 @@
     })
     .then(response => response.json())
     .then(data => {
-      document.getElementById("username").value = data.username;
-      document.getElementById("email").value = data.email;
+        document.getElementById("display-id").textContent = data.id;
+        document.getElementById("display-username").textContent = data.username;
+        document.getElementById("display-email").textContent = data.email;
+        document.getElementById("display-phoneNumber").textContent = data.phoneNumber;
+        document.getElementById("display-deskripsi").textContent = data.deskripsi;
+
+        document.getElementById("username").value = data.username;
+        document.getElementById("email").value = data.email;
+        document.getElementById("phoneNumber").value = data.phoneNumber;
+        document.getElementById("deskripsi").value = data.deskripsi;
     });
 
     // Saat submit form, kirim PUT request
@@ -43,7 +62,9 @@
       const updatedData = {
         username: document.getElementById("username").value,
         email: document.getElementById("email").value,
-        password: document.getElementById("password").value
+        password: document.getElementById("password").value,
+        phoneNumber: document.getElementById("phoneNumber").value,
+        deskripsi: document.getElementById("deskripsi").value
       };
 
       const response = await fetch(`http://localhost:8080/api/users/me`, {

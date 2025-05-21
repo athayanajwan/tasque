@@ -19,10 +19,9 @@ public class CustomUserDetailsService implements UserDetailsService {
     private UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
-        com.example.tasque.model.User user = userRepository.findByUsername(usernameOrEmail)
-                .or(() -> userRepository.findByEmail(usernameOrEmail))
-                .orElseThrow(() -> new UsernameNotFoundException("Username atau email tidak ditemukan"));
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        com.example.tasque.model.User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Username tidak ditemukan"));
 
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getUsername())

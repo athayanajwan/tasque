@@ -26,13 +26,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // ✅ Encoder untuk password hashing
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // ✅ Authentication manager (untuk custom login)
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
@@ -48,15 +46,16 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Halaman publik
                 .requestMatchers(
-                    "/register.html", "/login.html", "/dashboard.html", "/edit-profile.html",
+                    "/register.html", "/login.html", "/dashboard.html", "/edit-profile.html","/project-detail.html",
                     "/js/**", "/css/**", "/images/**"
                 ).permitAll()
 
                 // Endpoint publik
-                .requestMatchers("/api/users/register", "/api/users/login", "/api/users/me").permitAll()
+                .requestMatchers("/api/users/register", "/api/users/login").permitAll()
 
                 // Endpoint yang memerlukan token
-                .requestMatchers("/api/users/**").authenticated()
+                .requestMatchers("/api/users/**", "/api/users/me", "/api/projects/**", "/api/projects//{projectId}/members",
+                        "/api/projects//{projectId}").authenticated()
                 
                 .anyRequest().authenticated()
             )
