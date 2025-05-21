@@ -30,6 +30,10 @@ public class Project {
     @JoinColumn(name = "created_by")
     private User createdBy;
 
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Task> task = new ArrayList<>();
+
+
     public Project() {}
 
     public Project(String id, String name, String description, LocalDate createdAt, LocalDateTime deadline, User createdBy) {
@@ -56,7 +60,42 @@ public class Project {
     public LocalDateTime getDeadline() { return deadline; }
     public void setDeadline(LocalDateTime deadline) { this.deadline = deadline; }
 
+    public List<Task> getTask() { return task; }
+    public void setTask(List<Task> task) { this.task = task; }
+
     public User getCreatedBy() { return createdBy; }
     public void setCreatedBy(User createdBy) { this.createdBy = createdBy; }
 
+
+    public double getProgress() {
+        if (task == null || task.isEmpty()) return 0.0;
+
+        long completed = task.stream()
+                .filter(t -> t.getStatus() == TaskStatus.COMPLETED)
+                .count();
+
+        return (completed * 100.0) / task.size();
+    }
+
+    //public boolean addMember(User user) {
+    //    return members.add(user);
+    //}
+
+    //public boolean removeMember(String userId) {
+    //    return members.removeIf(user -> user.getId().equals(userId));
+    //}
+
+    public boolean addTask(Task task) {
+        task.setProject(this);
+        return this.task.add(task);
+    }
+
+    public boolean removeTask(String taskId) {
+        return task.removeIf(t -> t.getTitle().equals(taskId));
+    }
+
+    public void displayProgress() {
+        System.out.println("Project Progress: " + getProgress() + "%");
+    }
 }
+

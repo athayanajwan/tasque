@@ -12,6 +12,7 @@ import com.example.tasque.model.ProjectRole;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Date;
 
 public class ProjectResponseDTO {
     private String id;
@@ -101,3 +102,4 @@ public class ProjectResponseDTO {
         this.members = members;
     }
 }
+

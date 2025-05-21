@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -175,4 +176,20 @@ public class ProjectService {
                 project.getDeadline()
         );
     }
+
+    public double getProjectProgress(String projectId) {
+        Optional<Project> projectOpt = projectRepo.findById(projectId);
+
+        if (projectOpt.isEmpty()) {
+            throw new IllegalArgumentException("Project with ID " + projectId + " not found.");
+        }
+
+        Project project = projectOpt.get();
+        return project.getProgress();
+    }
+    
+    public List<ProjectResponseDTO> getAllProjects() {
+        return projectRepo.findAll().stream().map(this::mapToResponseDTO).toList();
+    }
+    
 }

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Progress Proyek</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h1>Daftar Proyek</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Nama Proyek</th>
+                <th>Deskripsi</th>
+                <th>Progress (%)</th>
+                <th>Deadline</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="project : ${projects}">
+                <td th:text="${project.name}">Nama</td>
+                <td th:text="${project.description}">Deskripsi</td>
+                <td th:text="${project.progress}">0.0</td>
+                <td th:text="${project.deadline}">Tanggal</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

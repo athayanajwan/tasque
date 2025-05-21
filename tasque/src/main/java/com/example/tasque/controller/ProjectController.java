@@ -6,8 +6,9 @@ package com.example.tasque.controller;
 
 /**
  *
- * @author Athaya
+ * @author cachaww
  */
+
 import com.example.tasque.dto.ProjectRequestDTO;
 import com.example.tasque.dto.ProjectResponseDTO;
 import com.example.tasque.model.User;
@@ -17,13 +18,14 @@ import com.example.tasque.util.CurrentUserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.ui.Model;
+
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/projects")
 public class ProjectController {
-
     @Autowired
     private ProjectService projectService;
 
@@ -83,5 +85,22 @@ public class ProjectController {
         User user = getCurrentUser();
         projectService.deleteProject(projectId, user);
         return ResponseEntity.ok("Proyek berhasil dihapus");
+    }
+    
+    @GetMapping("/{projectId}/progress")
+    public ResponseEntity<Double> getProjectProgress(@PathVariable String projectId) {
+        try {
+            double progress = projectService.getProjectProgress(projectId);
+            return ResponseEntity.ok(progress);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/projects")
+    public String showProjects(Model model) {
+        List<ProjectResponseDTO> projectList = projectService.getAllProjects();
+        model.addAttribute("projects", projectList);
+        return "project-progress";
     }
 }

@@ -46,7 +46,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Halaman publik
                 .requestMatchers(
-                    "/register.html", "/login.html", "/dashboard.html", "/edit-profile.html","/project-detail.html",
+                    "/register.html", "/login.html", "/dashboard.html", "/edit-profile.html","/project-detail.html","/manage-projects.html",
                     "/js/**", "/css/**", "/images/**"
                 ).permitAll()
 
