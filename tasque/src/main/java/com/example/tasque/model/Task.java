@@ -1,95 +1,69 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package com.example.tasque.model;
 
 import jakarta.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.*;
+
 
 @Entity
-@Table(name = "tasks")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Task {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
-
+    
     private String title;
+    
     private String description;
-
+    
     @Enumerated(EnumType.STRING)
     private TaskStatus status;
 
     @Enumerated(EnumType.STRING)
     private TaskPriority priority;
 
-    private Date createdAt;
-    private Date deadline;
-
+    private LocalDateTime start;
+    private LocalDateTime deadline;
+    private LocalDateTime updatedAt;
+    
+    @ManyToOne
+    @JoinColumn(name = "assigned_id")
+    private User assignedTo;
+    
     @ManyToOne
     @JoinColumn(name = "project_id")
     private Project project;
+    
+    @Builder.Default
+    @ManyToMany
+    @JoinTable(
+        name = "task_tags",
+        joinColumns = @JoinColumn(name = "task_id"),
+        inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private List<Tag> tags = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TaskComment> comments;
 
-    public Task() {}
-
-    public String getId() {
-        return id;
+    @PrePersist
+    public void prePersist() {
+        updatedAt = LocalDateTime.now();
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public TaskStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(TaskStatus status) {
-        this.status = status;
-    }
-
-    public TaskPriority getPriority() {
-        return priority;
-    }
-
-    public void setPriority(TaskPriority priority) {
-        this.priority = priority;
-    }
-
-    public Date getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Date getDeadline() {
-        return deadline;
-    }
-
-    public void setDeadline(Date deadline) {
-        this.deadline = deadline;
-    }
-
-    public Project getProject() {
-        return project;
-    }
-
-    public void setProject(Project project) {
-        this.project = project;
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 }
+
+
