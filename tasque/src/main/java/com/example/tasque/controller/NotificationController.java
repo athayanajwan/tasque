@@ -35,4 +35,6 @@ public class NotificationController {
         notificationService.markAsRead(id);
     }
 
+
 }
+

@@ -4,10 +4,6 @@
  */
 package com.example.tasque.repository;
 
-/**
- *
- * @author Athaya
- */
 import com.example.tasque.model.Task;
 import com.example.tasque.model.Project;
 import com.example.tasque.model.Tag;
