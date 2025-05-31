@@ -1,45 +1,30 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package com.example.tasque.dto;
 
-import java.util.Date;
+/**
+ *
+ * @author Athaya
+ */
+import lombok.*;
+import java.time.LocalDateTime;
+import java.util.List;
+import com.example.tasque.model.*;
 
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class TaskRequestDTO {
     private String title;
     private String description;
-    private String priority;
-    private Date deadline;
-
-    public TaskRequestDTO() {
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getPriority() {
-        return priority;
-    }
-
-    public void setPriority(String priority) {
-        this.priority = priority;
-    }
-
-    public Date getDeadline() {
-        return deadline;
-    }
-
-    public void setDeadline(Date deadline) {
-        this.deadline = deadline;
-    }
+    private String projectId;
+    private String assignedTo;
+    private TaskPriority priority; 
+    private TaskStatus status;
+    private LocalDateTime start;
+    private LocalDateTime deadline;
+    private List<String> tagNames;
 }
