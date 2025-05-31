@@ -4,85 +4,44 @@
  */
 package com.example.tasque.model;
 
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
  *
  * @author regianyogaswara
  */
-
-import jakarta.persistence.*;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 @Entity
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Notification {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    private String recipientId; 
-
+    private String title;
     private String message;
+    
+    @Column(name = "is_read")
+    @Builder.Default
+    private boolean isRead = false;
 
-    private boolean isRead;
+    private LocalDateTime createdAt;
 
-    private Date createdAt;
+    @ManyToOne
+    private User recipient;
+
+    private String link;
 
     @Enumerated(EnumType.STRING)
     private NotificationType type;
 
-    public Notification() {}
-
-    public void readNotif() {
+    public void setIsRead(boolean read) {
         this.isRead = true;
-    }
-
-    public String getDate() {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        return formatter.format(createdAt);
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getRecipientId() {
-        return recipientId;
-    }
-
-    public void setRecipientId(String recipientId) {
-        this.recipientId = recipientId;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public boolean isRead() {
-        return isRead;
-    }
-
-    public void setRead(boolean isRead) {
-        this.isRead = isRead;
-    }
-
-    public Date getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public NotificationType getType() {
-        return type;
-    }
-
-    public void setType(NotificationType type) {
-        this.type = type;
     }
 }
