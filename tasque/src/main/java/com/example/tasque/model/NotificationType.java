@@ -8,10 +8,9 @@ package com.example.tasque.model;
  *
  * @author regianyogaswara
  */
-
 public enum NotificationType {
-    TASK_ASSIGNED,
-    DEADLINE_REMINDER,
-    COMMENT_ADDED
+    ASSIGNMENT,
+    DEADLINE,
+    COMMENT,
+    STATUS_UPDATE
 }
-
