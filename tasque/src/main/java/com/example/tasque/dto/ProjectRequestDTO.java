@@ -14,13 +14,15 @@ import java.util.Date;
 public class ProjectRequestDTO {
     private String name;
     private String description;
+    private LocalDateTime start;
     private LocalDateTime deadline;
 
     public ProjectRequestDTO() {}
 
-    public ProjectRequestDTO(String name, String description, LocalDateTime deadline) {
+    public ProjectRequestDTO(String name, String description, LocalDateTime start, LocalDateTime deadline) {
         this.name = name;
         this.description = description;
+        this.start = start;
         this.deadline = deadline;
     }
 
@@ -32,4 +34,7 @@ public class ProjectRequestDTO {
 
     public LocalDateTime getDeadline() { return deadline; }
     public void setDeadline(LocalDateTime deadline) { this.deadline = deadline; }
+    
+    public LocalDateTime getStart() { return start; }
+    public void setStart(LocalDateTime start) { this.start = start; }
 }
