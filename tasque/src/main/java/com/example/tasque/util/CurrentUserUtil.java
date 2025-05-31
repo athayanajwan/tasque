@@ -18,14 +18,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class CurrentUserUtil {
 
-    private static UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Autowired
     public CurrentUserUtil(UserRepository userRepository) {
-        CurrentUserUtil.userRepository = userRepository;
+        this.userRepository = userRepository;
     }
 
-    public static User getCurrentUser() {
+    public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName(); // username dari token JWT
         return userRepository.findByUsername(username)
