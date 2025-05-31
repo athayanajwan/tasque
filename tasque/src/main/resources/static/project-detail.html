@@ -1,269 +1,46 @@
 <!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
+-->
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Detail Proyek</title>
+  <title>Register</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <h2>Detail Proyek</h2>
-  <div id="userRole" style="margin: 10px 0; padding: 10px; background: #f5f5f5;">
-  <!-- Role akan muncul di sini -->
-</div>
-  <div id="projectDetails">Memuat data...</div>
+  <h2>Register</h2>
+  <form id="registerForm">
+    <input type="text" id="username" placeholder="Username" required />
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <button type="submit">Register</button>
+  </form>
 
-  <div id="projectActions" style="display:none;">
-    <h3>Edit Proyek</h3>
-    <form id="editProjectForm">
-      <input type="text" id="editName" placeholder="Nama Proyek" required>
-      <input type="text" id="editDescription" placeholder="Deskripsi" required>
-      <input type="datetime-local" id="editDeadline" required>
-      <button type="submit">Simpan Perubahan</button>
-    </form>
+  <p>Sudah punya akun? <a href="login.html">Login</a></p>
 
-    <h3>Kelola Anggota</h3>
-    <ul id="memberList"></ul>
-
-    <h4>Undang Anggota Baru</h4>
-    <form id="inviteForm">
-      <input type="text" id="inviteUsername" placeholder="username" required>
-      <select id="inviteRole">
-        <option value="PROJECT_MANAGER">Project Manager</option>
-        <option value="MEMBER">Anggota</option>
-      </select>
-      <button type="submit">Undang</button>
-    </form>
-
-    <br>
-    <button id="deleteBtn" style="background-color: red; color: white;">Hapus Proyek</button>
-  </div>
-
-  <a href="dashboard.html">← Kembali ke Dashboard</a>
-
-  <script src="js/auth.js"></script>
   <script>
-    if (!isAuthenticated()) {
-      window.location.href = "login.html";
-    }
-
-    const token = localStorage.getItem("token");
-    const projectId = new URLSearchParams(window.location.search).get("id");
-    let currentUserId = null;
-    let currentProject = null;
-    let isManager = false;
-
-    // Format ISO 8601 string ke format datetime-local (yyyy-MM-ddTHH:mm)
-    function toDateTimeLocal(isoString) {
-      const date = new Date(isoString);
-      const pad = (num) => num.toString().padStart(2, '0');
-      const yyyy = date.getFullYear();
-      const MM = pad(date.getMonth() + 1);
-      const dd = pad(date.getDate());
-      const hh = pad(date.getHours());
-      const mm = pad(date.getMinutes());
-      return `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
-    }
-
-    // Format tanggal ke format lokal yang user-friendly
-    function formatDateTime(iso) {
-      const date = new Date(iso);
-      return date.toLocaleString("id-ID", {
-        weekday: 'long', year: 'numeric', month: 'long',
-        day: 'numeric', hour: '2-digit', minute: '2-digit'
-      });
-    }
-
-    fetch("http://localhost:8080/api/users/me", {
-      headers: { "Authorization": "Bearer " + token }
-    })
-    .then(res => {
-      if (!res.ok) throw new Error("Gagal memuat data pengguna");
-      return res.json();
-    })
-    .then(user => {
-  currentUserId = user.id;
-  console.log("Logged in User:", user); // Debug user data
-  // ... lanjutkan fetch project
-
-
-      return fetch(`http://localhost:8080/api/projects/${projectId}`, {
-        headers: { "Authorization": "Bearer " + token }
-      });
-    })
-    .then(res => {
-      if (!res.ok) throw new Error("Gagal memuat data proyek");
-      return res.json();
-    })
-    .then(project => {
-  currentProject = project;
-  console.log("Project Data:", project); // Debug 1
-  console.log("Current User ID:", currentUserId); // Debug 2
-  
-  const currentMember = project.members?.find(m => m.userId === currentUserId);
-  console.log("Current Member:", currentMember); // Debug 3
-
-  isManager = currentMember?.role === "PROJECT_MANAGER";
-  console.log("Is Manager:", isManager); // Debug 4
-
-  // Tampilkan role dengan pengecekan lebih ketat
-  const userRoleElement = document.getElementById("userRole");
-  if (userRoleElement) {
-    if (currentMember) {
-      userRoleElement.innerHTML = `<p><strong>Peran Anda:</strong> ${formatRole(currentMember.role)}</p>`;
-    } else {
-      userRoleElement.innerHTML = `<p style="color:red;">Anda bukan anggota proyek ini</p>`;
-    }
-  } else {
-    console.error("Element dengan ID 'userRole' tidak ditemukan!");
-  }
-
-      document.getElementById("projectDetails").innerHTML = `
-        <p><strong>Nama:</strong> ${project.name}</p>
-        <p><strong>Deskripsi:</strong> ${project.description}</p>
-        <p><strong>Dibuat oleh:</strong> ${project.createdBy}</p>
-        <p><strong>Dibuat pada:</strong> ${formatDateTime(project.createdAt)}</p>
-        <p><strong>Deadline:</strong> ${formatDateTime(project.deadline)}</p>
-      `;
-
-      if (isManager) {
-        document.getElementById("projectActions").style.display = "block";
-
-        document.getElementById("editName").value = project.name;
-        document.getElementById("editDescription").value = project.description;
-        document.getElementById("editDeadline").value = toDateTimeLocal(project.deadline); 
-      }
-      
-      loadMembers(project.members);
-    })
-    .catch(err => {
-      document.getElementById("projectDetails").textContent = "Gagal memuat data: " + err.message;
-    });
-
-    // Fungsi tampilkan anggota proyek
-    function loadMembers(members) {
-  const list = document.getElementById("memberList");
-  list.innerHTML = "";
-  members.forEach(member => {
-    const li = document.createElement("li");
-    li.innerHTML = `<strong>${member.username}</strong> - <em>${formatRole(member.role)}</em>`;
-
-    // Hanya tampilkan tombol hapus jika current user adalah PROJECT_MANAGER
-    // dan member bukan diri sendiri
-    if (isManager && member.userId !== currentUserId) {
-      const removeBtn = document.createElement("button");
-      removeBtn.textContent = "Hapus";
-      removeBtn.style.marginLeft = "10px";
-      removeBtn.onclick = () => {
-        if (confirm(`Hapus ${member.username} dari proyek?`)) {
-          fetch(`http://localhost:8080/api/projects/${projectId}/members?username=${encodeURIComponent(member.username)}`, {
-            method: "DELETE",
-            headers: { "Authorization": "Bearer " + token }
-          })
-          .then(res => {
-            if (res.ok) {
-              alert("Anggota dihapus.");
-              location.reload();
-            } else {
-              return res.text().then(msg => { throw new Error(msg); });
-            }
-          })
-          .catch(err => alert("Gagal hapus anggota: " + err.message));
-        }
-      };
-      li.appendChild(removeBtn);
-    }
-
-    list.appendChild(li);
-  });
-}
-
-    function formatRole(role) {
-  switch (role) {
-    case "PROJECT_MANAGER":
-      return "Project Manager";
-    case "MEMBER":
-      return "Anggota";
-    default:
-      return role;
-  }
-}
-
-    // Event edit proyek
-    document.getElementById("editProjectForm").onsubmit = function(e) {
+    document.getElementById("registerForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const updated = {
-        name: document.getElementById("editName").value,
-        description: document.getElementById("editDescription").value,
-        deadline: new Date(document.getElementById("editDeadline").value).toISOString()
+      const data = {
+        username: document.getElementById("username").value,
+        email: document.getElementById("email").value,
+        password: document.getElementById("password").value
       };
 
-      fetch(`http://localhost:8080/api/projects/${projectId}`, {
-        method: "PUT",
-        headers: {
-          "Authorization": "Bearer " + token,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(updated)
-      })
-      .then(res => {
-        if (res.ok) {
-          alert("Proyek berhasil diperbarui.");
-          location.reload();
-        } else {
-          return res.text().then(msg => { throw new Error(msg); });
-        }
-      })
-      .catch(err => alert("Gagal menyimpan perubahan: " + err.message));
-    };
-
-    document.getElementById("deleteBtn").addEventListener("click", async () => {
-    if (!confirm("Yakin ingin menghapus proyek ini? Tindakan ini tidak dapat dibatalkan.")) {
-        return;
-    }
-
-    try {
-        const response = await fetch(`http://localhost:8080/api/projects/${projectId}`, {
-            method: "DELETE",
-            headers: { 
-                "Authorization": "Bearer " + token,
-                "Content-Type": "application/json"
-            }
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => null);
-            throw new Error(errorData?.message || "Gagal menghapus proyek");
-        }
-
-        alert("Proyek berhasil dihapus.");
-        window.location.href = "dashboard.html";
-    } catch (error) {
-        console.error("Error deleting project:", error);
-        alert(`Gagal menghapus proyek: ${error.message}`);
-    }
-});
-
-    // Event undang anggota baru
-    document.getElementById("inviteForm").onsubmit = function(e) {
-      e.preventDefault();
-      const username = document.getElementById("inviteUsername").value;
-      const role = document.getElementById("inviteRole").value;
-
-      fetch(`http://localhost:8080/api/projects/${projectId}/members?username=${encodeURIComponent(username)}&role=${encodeURIComponent(role)}`, {
+      const response = await fetch("http://localhost:8080/api/users/register", {
         method: "POST",
-        headers: {
-          "Authorization": "Bearer " + token
-        }
-      })
-      .then(res => {
-        if (res.ok) {
-          alert("berhasil ditambahkan");
-          location.reload();
-        } else {
-          return res.text().then(msg => { throw new Error(msg); });
-        }
-      })
-      .catch(err => alert("Gagal ditambahkan: " + err.message));
-    };
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      if (response.ok) {
+        alert("Registrasi berhasil! Silakan login.");
+        window.location.href = "login.html";
+      } else {
+        alert("Registrasi gagal!");
+      }
+    });
   </script>
 </body>
 </html>
