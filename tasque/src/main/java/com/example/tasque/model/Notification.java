@@ -40,8 +40,4 @@ public class Notification {
 
     @Enumerated(EnumType.STRING)
     private NotificationType type;
-
-    public void setIsRead(boolean read) {
-        this.isRead = true;
-    }
 }

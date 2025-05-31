@@ -92,6 +92,9 @@ public class ProjectService {
         Project project = getProjectEntityById(projectId, requester);
         requireManagerRole(project, requester);
         
+        List<Task> tasks = taskRepo.findByProject(project);
+        taskRepo.deleteAll(tasks);
+        
         List<ProjectMembership> memberships = membershipRepo.findByProject(project);
         membershipRepo.deleteAll(memberships);
         
