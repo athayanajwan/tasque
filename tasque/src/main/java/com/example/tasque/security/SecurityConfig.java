@@ -46,8 +46,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Halaman publik
                 .requestMatchers(
-                    "/register.html", "/login.html", "/dashboard.html", "/edit-profile.html","/project-detail.html",
-                    "/js/**", "/css/**", "/images/**", "/assets/**", "/task-detail.html", "/notifications.html"
+                    "/auth.html", "/dashboard.html", "/edit-profile.html","/project-detail.html",
+                    "/js/**", "/css/**", "/images/**", "/assets/**", "/task-detail.html", "/notifications.html", "/assets/**"
                 ).permitAll()
 
                 // Endpoint publik

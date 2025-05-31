@@ -43,7 +43,7 @@ public class NotificationService {
 
     public void markAsRead(String id) {
         Notification notif = notificationRepository.findById(id).orElseThrow();
-        notif.setIsRead(true);
+        notif.setRead(true);
         notificationRepository.save(notif);
     }
 }
