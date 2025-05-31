@@ -47,15 +47,18 @@ public class SecurityConfig {
                 // Halaman publik
                 .requestMatchers(
                     "/register.html", "/login.html", "/dashboard.html", "/edit-profile.html","/project-detail.html",
-                    "/js/**", "/css/**", "/images/**"
+                    "/js/**", "/css/**", "/images/**", "/assets/**", "/task-detail.html", "/notifications.html"
                 ).permitAll()
 
                 // Endpoint publik
                 .requestMatchers("/api/users/register", "/api/users/login").permitAll()
 
                 // Endpoint yang memerlukan token
-                .requestMatchers("/api/users/**", "/api/users/me", "/api/projects/**", "/api/projects//{projectId}/members",
-                        "/api/projects//{projectId}").authenticated()
+                .requestMatchers("/api/users/**", "/api/users/me", "/api/projects/**", "/api/projects/{projectId}/members",
+                        "/api/projects/{projectId}","/api/tasks/**","/api/tasks/{taskId}", "/api/tasks/{taskId}/comments",
+                        "/api/tasks/{taskId}/comments/{commentId}", "/api/notifications/**", "/api/notifications/**",
+                        "/api/notifications/{id}/read", "/api/notifications"
+                        ).authenticated()
                 
                 .anyRequest().authenticated()
             )

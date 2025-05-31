@@ -14,7 +14,7 @@ import com.example.tasque.dto.ProjectResponseDTO.MemberInfo;
 import com.example.tasque.model.*;
 import com.example.tasque.repository.ProjectMembershipRepository;
 import com.example.tasque.repository.ProjectRepository;
-import com.example.tasque.repository.UserRepository;
+import com.example.tasque.repository.*;
 import com.example.tasque.service.ProjectService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -37,10 +37,19 @@ public class ProjectService {
     @Autowired
     private UserRepository userRepo;
     
+    @Autowired
+    private TaskRepository taskRepo;
+    
     public ProjectResponseDTO createProject(ProjectRequestDTO request, User creator){
         long count = projectRepo.countProject()+1;
         String id = String.format("project-%05d", count);
-        Project project = new Project(id, request.getName(), request.getDescription(), LocalDate.now(), request.getDeadline(), creator);
+        
+        if (request.getDeadline().isBefore(LocalDateTime.now()) && request.getStart().isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("Deadline/Start proyek tidak boleh sebelum hari ini.");
+        }
+ 
+        Project project = new Project(id, request.getName(), request.getDescription(), request.getStart(), request.getDeadline(), creator);
+        System.out.println(project.getStart());
         
         Project saved = projectRepo.save(project);
         
@@ -56,8 +65,22 @@ public class ProjectService {
         Project project = getProjectEntityById(projectId, requester);
         requireManagerRole(project, requester);
 
+        if (request.getDeadline().isBefore(LocalDateTime.now()) && request.getStart().isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("Deadline/Start proyek tidak boleh sebelum hari ini.");
+        }
+
+        // Cek apakah ada task dengan deadline setelah deadline proyek
+        List<Task> tasks = taskRepo.findByProject(project);
+        boolean adaDeadlineTaskMelebihi = tasks.stream()
+            .anyMatch(task -> task.getDeadline().isAfter(request.getDeadline()));
+
+        if (adaDeadlineTaskMelebihi) {
+            throw new IllegalStateException("Tidak dapat mengubah deadline proyek. Ada tugas dengan deadline yang melebihi deadline proyek.");
+        }
+        
         project.setName(request.getName());
         project.setDescription(request.getDescription());
+        project.setStart(request.getStart());
         project.setDeadline(request.getDeadline());
 
         Project updated = projectRepo.save(project);
@@ -98,7 +121,7 @@ public class ProjectService {
         dto.setName(project.getName());
         dto.setDescription(project.getDescription());
         dto.setCreatedBy(project.getCreatedBy().getUsername());
-        dto.setCreatedAt(project.getCreatedAt());
+        dto.setStart(project.getStart());
         dto.setDeadline(project.getDeadline());
         dto.setMembers(memberInfos);
 
@@ -141,6 +164,11 @@ public class ProjectService {
         throw new IllegalStateException("Project Manager tidak dapat menghapus dirinya sendiri.");
     }
 
+    boolean masihAdaTask = taskRepo.existsByProjectAndAssignedTo(project, userToRemove);
+    if (masihAdaTask) {
+        throw new IllegalStateException("Tidak dapat menghapus. Pengguna masih ditugaskan pada tugas di proyek ini.");
+    }
+    
     membershipRepo.delete(membership);
     }
     
@@ -171,7 +199,7 @@ public class ProjectService {
                 project.getName(),
                 project.getDescription(),
                 project.getCreatedBy().getUsername(),
-                project.getCreatedAt(),
+                project.getStart(),
                 project.getDeadline()
         );
     }

@@ -18,7 +18,7 @@ public class ProjectResponseDTO {
     private String name;
     private String description;
     private String createdBy;
-    private LocalDate createdAt;
+    private LocalDateTime start;
     private LocalDateTime deadline;
     private List<MemberInfo> members;
     
@@ -56,22 +56,22 @@ public class ProjectResponseDTO {
     
     public ProjectResponseDTO() {}
 
-    public ProjectResponseDTO(String id, String name, String description, String createdBy, LocalDate createdAt, LocalDateTime deadline, List<MemberInfo> user) {
+    public ProjectResponseDTO(String id, String name, String description, String createdBy, LocalDateTime start, LocalDateTime deadline, List<MemberInfo> user) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.createdBy = createdBy;
-        this.createdAt = createdAt;
+        this.start = start;
         this.deadline = deadline;
         this.members = user;
     }
     
-    public ProjectResponseDTO(String id, String name, String description, String createdBy, LocalDate createdAt, LocalDateTime deadline) {
+    public ProjectResponseDTO(String id, String name, String description, String createdBy, LocalDateTime start, LocalDateTime deadline) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.createdBy = createdBy;
-        this.createdAt = createdAt;
+        this.start = start;
         this.deadline = deadline;
     }
 
@@ -87,8 +87,8 @@ public class ProjectResponseDTO {
     public String getCreatedBy() { return createdBy; }
     public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
 
-    public LocalDate getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDate createdAt) { this.createdAt = createdAt; }
+    public LocalDateTime getStart() { return start; }
+    public void setStart(LocalDateTime start) { this.start = start; }
 
     public LocalDateTime getDeadline() { return deadline; }
     public void setDeadline(LocalDateTime deadline) { this.deadline = deadline; }

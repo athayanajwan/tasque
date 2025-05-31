@@ -10,7 +10,8 @@
 
   <!-- Tambahkan link ke edit profil -->
   <a id="editProfileLink" href="#">Edit Profil</a><br><br>
-
+  <a id="notificationsLink" href="#">Kotak Masuk</a><br><br>
+  
   <h3>Daftar Proyek Anda</h3>
   <ul id="projectList">
     <li>Memuat daftar proyek...</li>
@@ -20,6 +21,7 @@
   <form id="addProjectForm">
     <input type="text" id="projectName" placeholder="Nama Proyek" required>
     <input type="text" id="projectDescription" placeholder="Deskripsi" required>
+    <input type="datetime-local" id="startInput" required>
     <input type="datetime-local" id="deadlineInput" required>
     <button type="submit">Tambah Proyek</button>
   </form>
@@ -48,6 +50,7 @@
         document.getElementById("welcomeMessage").textContent = `Halo, ${data.username} (${data.email})`;
         localStorage.setItem("userId", data.userId);
         document.getElementById("editProfileLink").href = "edit-profile.html";
+        document.getElementById("notificationsLink").href = "notifications.html";
         loadProjects(token);
       })
       .catch(error => {
@@ -56,36 +59,50 @@
       });
 
       function loadProjects(token) {
-        fetch("http://localhost:8080/api/projects", {
-          headers: {
-            "Authorization": "Bearer " + token
-          }
-        })
-        .then(response => response.json())
-        .then(projects => {
-          const projectList = document.getElementById("projectList");
-          projectList.innerHTML = "";
+  fetch("http://localhost:8080/api/projects", {
+    headers: {
+      "Authorization": "Bearer " + token
+    }
+  })
+  .then(response => response.json())
+  .then(projects => {
+    console.log(projects);
+    const projectList = document.getElementById("projectList");
+    projectList.innerHTML = "";
 
-          projects.forEach(project => {
-            const li = document.createElement("li");
-            const link = document.createElement("a");
-            const formattedDate = new Date(project.deadline).toLocaleString("id-ID", {
-              day: "2-digit", month: "2-digit", year: "numeric",
-              hour: "2-digit", minute: "2-digit"
-            });
-            link.textContent = `${project.name} (Deadline: ${formattedDate})`;
-            link.href = `project-detail.html?id=${project.id}`;
-            li.appendChild(link);
-            projectList.appendChild(li);
-          });
-        });
-      }
+    projects.forEach(project => {
+      const li = document.createElement("li");
+      const link = document.createElement("a");
+
+      const startFormatted = project.start
+        ? new Date(project.start).toLocaleString("id-ID", {
+            day: "2-digit", month: "2-digit", year: "numeric",
+            hour: "2-digit", minute: "2-digit"
+          })
+        : "-";
+
+      const deadlineFormatted = project.deadline
+        ? new Date(project.deadline).toLocaleString("id-ID", {
+            day: "2-digit", month: "2-digit", year: "numeric",
+            hour: "2-digit", minute: "2-digit"
+          })
+        : "-";
+
+      link.textContent = `${project.name} (Mulai: ${startFormatted} - Deadline: ${deadlineFormatted})`;
+      link.href = `project-detail.html?id=${project.id}`;
+
+      li.appendChild(link);
+      projectList.appendChild(li);
+    });
+  });
+}
 
       document.getElementById("addProjectForm").addEventListener("submit", function(event) {
         event.preventDefault();
 
         const name = document.getElementById("projectName").value;
         const description = document.getElementById("projectDescription").value;
+        const start = document.getElementById("startInput").value;
         const deadline = document.getElementById("deadlineInput").value;
 
         fetch("http://localhost:8080/api/projects", {
@@ -97,10 +114,12 @@
           body: JSON.stringify({
             name: name,
             description: description,
+            start: start,
             deadline: deadline
           })
         })
         .then(response => {
+          console.log(start);
           if (!response.ok) {
             throw new Error("Gagal menambah proyek.");
           }

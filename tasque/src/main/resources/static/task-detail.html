@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Detail Tugas</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    .label { font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Detail Tugas</h1>
+  <div id="taskView">Memuat data tugas...</div>
+  
+  <div id="commentSection">
+  <h3>Komentar</h3>
+  <div id="commentList">Memuat komentar...</div>
+
+  <div id="addCommentForm" style="margin-top: 1em;">
+    <textarea id="newComment" rows="3" style="width: 100%;" placeholder="Tulis komentar..."></textarea>
+    <button onclick="addComment()">Kirim Komentar</button>
+  </div>
+</div>
+  
+  <!-- Form Edit Tugas -->
+  <div id="taskEdit" style="display:none;">
+    <h3>Edit Tugas</h3>
+    <form id="editTaskForm">
+      <p><span class="label">Judul:</span><br><input type="text" id="title" required /></p>
+      <p><span class="label">Deskripsi:</span><br><textarea id="description" required></textarea></p>
+      <p><span class="label">Assigned To (username):</span><br><input type="text" id="assignedTo" required /></p>
+      <p><span class="label">Status:</span>
+        <select id="status" required>
+          <option value="TO_DO">To Do</option>
+          <option value="IN_PROGRESS">In Progress</option>
+          <option value="REVIEW">Review</option>
+          <option value="COMPLETED">Selesai</option>
+        </select>
+      </p>
+      <p><span class="label">Prioritas:</span>
+        <select id="priority" required>
+          <option value="LOW">Low</option>
+          <option value="MEDIUM">Medium</option>
+          <option value="HIGH">High</option>
+          <option value="URGENT">Urgent</option>
+        </select>
+      </p>
+      <p><span class="label">Start:</span><br><input type="datetime-local" id="start" required /></p>
+      <p><span class="label">Deadline:</span><br><input type="datetime-local" id="deadline" required /></p>
+      <p><span class="label">Tags (pisahkan dengan koma):</span><br><input type="text" id="tags" /></p>
+      <button type="submit">Simpan</button>
+    </form>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("token");
+    const urlParams = new URLSearchParams(window.location.search);
+    const taskId = urlParams.get("id");
+    let isManager = false;
+    let projectId = null;
+    let currentUserId = null;
+    let isAssignedTo = false;
+    
+    if (!token || !taskId) {
+      document.getElementById("taskView").textContent = "Token atau ID tidak ditemukan.";
+    } else {
+      
+
+      fetch("http://localhost:8080/api/users/me", {
+        headers: { "Authorization": "Bearer " + token }
+      })
+      .then(res => {
+        if (!res.ok) throw new Error(`Gagal memuat data pengguna. Status: ${res.status}`);
+        return res.json();
+      })
+      .then(user => {
+        currentUserId = user.id;
+        return fetch(`http://localhost:8080/api/tasks/${taskId}`, {
+          headers: { "Authorization": "Bearer " + token }
+        });
+      })
+      .then(res => res.json())
+      .then(task => {
+        projectId = task.project.id;
+        isAssignedTo = task.assignedTo?.id === currentUserId;
+
+        displayTaskDetails(task);
+        renderComments(task.comments, currentUserId, isManager);
+        return fetch(`http://localhost:8080/api/projects/${projectId}`, {
+          headers: { "Authorization": "Bearer " + token }
+        });
+      })
+      .then(res => res.json())
+      .then(project => {
+        const member = project.members.find(m => m.userId === currentUserId);
+        isManager = member?.role === "PROJECT_MANAGER";
+        if (isManager || isAssignedTo) {
+            showEditForm(isManager);
+        }
+      })
+      .catch(err => {
+        document.getElementById("taskView").textContent = "Gagal memuat: " + err.message;
+      });
+    }
+
+    function displayTaskDetails(task) {
+      console.log(task);
+      const view = document.getElementById("taskView");
+      view.innerHTML = `
+        <p><strong>Judul:</strong> ${task.title}</p>
+        <p><strong>Deskripsi:</strong> ${task.description || "-"}</p>
+        <p><strong>Status:</strong> ${task.status}</p>
+        <p><strong>Prioritas:</strong> ${task.priority}</p>
+        <p><strong>Start:</strong> ${task.start ? task.start.replace("T", " ") : "-"}</p>
+        <p><strong>Deadline:</strong> ${task.deadline ? task.deadline.replace("T", " ") : "-"}</p>
+        <p><strong>Assigned To:</strong> ${task.assignedTo.name || "-"}</p>
+        <p><strong>Tags:</strong> ${task.tags?.map(t => t.name).join(", ") || "-"}</p>
+      `;
+
+      // Isi form edit
+      document.getElementById("title").value = task.title;
+      document.getElementById("description").value = task.description || "";
+      document.getElementById("assignedTo").value = task.assignedTo.name || "";
+      document.getElementById("status").value = task.status;
+      document.getElementById("priority").value = task.priority;
+      document.getElementById("start").value = task.start ? task.start.slice(0, 16) : "";
+      document.getElementById("deadline").value = task.deadline ? task.deadline.slice(0, 16) : "";
+      document.getElementById("tags").value = task.tags?.map(t => t.name).join(", ") || "";
+    }
+
+    function showEditForm(isManager) {
+      document.getElementById("taskEdit").style.display = "block";
+
+      if (!isManager) {
+        document.getElementById("title").disabled = true;
+        document.getElementById("description").disabled = true;
+        document.getElementById("assignedTo").disabled = true;
+        document.getElementById("priority").disabled = true;
+        document.getElementById("start").disabled = true;
+        document.getElementById("deadline").disabled = true;
+        document.getElementById("tags").disabled = true;
+      }
+
+      document.getElementById("editTaskForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const updatedData = {
+          title: document.getElementById("title").value,
+          description: document.getElementById("description").value,
+          status: document.getElementById("status").value,
+          priority: document.getElementById("priority").value,
+          assignedTo: document.getElementById("assignedTo").value,  
+          start: new Date(document.getElementById("start").value).toISOString(),
+          deadline: new Date(document.getElementById("deadline").value).toISOString(),
+          projectId: projectId,
+          tagNames: document.getElementById("tags").value
+            .split(",")
+            .map(tag => tag.trim())
+            .filter(tag => tag.length > 0)
+        };
+        console.log(updatedData);
+        fetch(`http://localhost:8080/api/tasks/${taskId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+          },
+          body: JSON.stringify(updatedData)
+        })
+        .then(res => {
+          if (!res.ok) throw new Error("Gagal mengupdate tugas.");
+          return res.json();
+        })
+        .then(() => {
+          alert("Tugas berhasil diperbarui!");
+          location.reload();
+        })
+        .catch(err => {
+          alert("Error: " + err.message);
+        });
+      });
+    }
+    
+    function renderComments(comments, currentUserId, isManager) {
+  const list = document.getElementById("commentList");
+  if (!comments || comments.length === 0) {
+    list.innerHTML = "<p>Belum ada komentar.</p>";
+    return;
+  }
+
+  list.innerHTML = "";
+  comments.forEach(comment => {
+    const commentDiv = document.createElement("div");
+    commentDiv.style.borderBottom = "1px solid #ddd";
+    commentDiv.style.marginBottom = "10px";
+    commentDiv.style.padding = "5px 0";
+
+    const authorRole = comment.author.role ? ` (${comment.author.role})` : "";
+    const deleteButton = (comment.author.id === currentUserId || isManager)
+      ? `<button onclick="deleteComment('${comment.id}')">Hapus</button>` : "";
+
+    commentDiv.innerHTML = `
+      <p><strong>${comment.author.name}${authorRole}</strong> <small>${new Date(comment.createdAt).toLocaleString()}</small></p>
+      <p>${comment.content}</p>
+      ${deleteButton}
+    `;
+
+    list.appendChild(commentDiv);
+  });
+}
+
+function addComment() {
+  const content = document.getElementById("newComment").value.trim();
+  if (!content) return alert("Komentar tidak boleh kosong.");
+
+  fetch(`http://localhost:8080/api/tasks/${taskId}/comments?userId=${currentUserId}`, {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer " + token,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ content })
+  })
+  .then(res => {
+    if (!res.ok) throw new Error("Gagal menambahkan komentar.");
+    return res.json();
+  })
+  .then(() => {
+    document.getElementById("newComment").value = "";
+    return loadTaskAndComments(); // Reload task to refresh comments
+  })
+  .catch(err => alert("Error: " + err.message));
+}
+
+function deleteComment(commentId) {
+  if (!confirm("Hapus komentar ini?")) return;
+
+  fetch(`http://localhost:8080/api/tasks/${taskId}/comments/${commentId}?userId=${currentUserId}`, {
+    method: "DELETE",
+    headers: {
+      "Authorization": "Bearer " + token
+    }
+  })
+  .then(res => {
+    if (!res.ok) throw new Error("Gagal menghapus komentar.");
+    return loadTaskAndComments();
+  })
+  .catch(err => alert("Error: " + err.message));
+}
+
+function loadTaskAndComments() {
+  fetch(`http://localhost:8080/api/tasks/${taskId}`, {
+    headers: { "Authorization": "Bearer " + token }
+  })
+  .then(res => res.json())
+  .then(task => {
+    displayTaskDetails(task);
+    renderComments(task.comments, currentUserId, isManager);
+  })
+  .catch(err => {
+    alert("Gagal memuat ulang data tugas: " + err.message);
+  });
+}
+
+
+  </script>
+</body>
+</html>

@@ -22,7 +22,7 @@ public class Project {
 
     private String description;
 
-    private LocalDate createdAt;
+    private LocalDateTime start;
 
     private LocalDateTime deadline;
 
@@ -32,11 +32,11 @@ public class Project {
 
     public Project() {}
 
-    public Project(String id, String name, String description, LocalDate createdAt, LocalDateTime deadline, User createdBy) {
+    public Project(String id, String name, String description, LocalDateTime start, LocalDateTime deadline, User createdBy) {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.createdAt = createdAt;
+        this.start = start;
         this.deadline = deadline;
         this.createdBy = createdBy;
     }
@@ -50,8 +50,8 @@ public class Project {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
 
-    public LocalDate getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDate createdAt) { this.createdAt = createdAt; }
+    public LocalDateTime getStart() { return start; }
+    public void setStart(LocalDateTime start) { this.start = start; }
 
     public LocalDateTime getDeadline() { return deadline; }
     public void setDeadline(LocalDateTime deadline) { this.deadline = deadline; }

@@ -45,4 +45,10 @@ public class UserController {
         UserResponseDTO response = userService.getCurrentUser(authentication.getName());
         return ResponseEntity.ok(response);
     }
+    
+    @GetMapping("/{username}")
+    public ResponseEntity<UserResponseDTO> getUserByUsername(@PathVariable String username) {
+        UserResponseDTO response = userService.getUserByUsername(username);
+        return ResponseEntity.ok(response);
+    }
 }

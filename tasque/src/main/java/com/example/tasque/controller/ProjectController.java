@@ -6,7 +6,7 @@ package com.example.tasque.controller;
 
 /**
  *
- * @author Athaya
+ * @author cachaww
  */
 import com.example.tasque.dto.ProjectRequestDTO;
 import com.example.tasque.dto.ProjectResponseDTO;
@@ -19,7 +19,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/projects")
 public class ProjectController {
@@ -27,8 +29,10 @@ public class ProjectController {
     @Autowired
     private ProjectService projectService;
 
+    private final CurrentUserUtil currentUserUtil;
+    
     private User getCurrentUser() {
-        return CurrentUserUtil.getCurrentUser();
+        return currentUserUtil.getCurrentUser();
     }
 
     @PostMapping

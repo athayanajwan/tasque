@@ -112,4 +112,12 @@ public class UserService {
 
     return updateProfile(user.getId(), request);
     }
+
+    public UserResponseDTO getUserByUsername(String username) {
+    User user = userRepository.findByUsername(username)
+        .orElseThrow(() -> new RuntimeException("User tidak ditemukan"));
+    
+    
+    return new UserResponseDTO(user.getId(), user.getUsername(), user.getEmail(), user.getPhoneNumber(), user.getDeskripsi());
+}
 }
