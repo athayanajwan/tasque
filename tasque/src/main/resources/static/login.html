@@ -16,6 +16,20 @@
 
   <script src="js/auth.js"></script>
   <script>
+    // Fungsi toggle password visibility
+    function togglePassword() {
+      const passwordField = document.getElementById('password');
+      const toggleIcon = document.querySelector('.toggle-password i');
+      
+      if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        toggleIcon.classList.replace('fa-eye', 'fa-eye-slash');
+      } else {
+        passwordField.type = 'password';
+        toggleIcon.classList.replace('fa-eye-slash', 'fa-eye');
+      }
+    }
+
     // Fungsi login yang sudah ada
     document.getElementById("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -32,9 +46,8 @@
 
       if (response.ok) {
         const token = await response.text();
-        // Simpan token di localStorage
-        localStorage.setItem("token", token);
-        window.location.href = "dashboard.html"; // Arahkan ke halaman dashboard setelah login
+        saveToken(token);
+        window.location.href = "dashboard.html";
       } else {
         alert("Login gagal!");
       }
