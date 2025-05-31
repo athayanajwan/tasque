@@ -8,7 +8,7 @@ function saveToken(token) {
 
 function logoutUser() {
   localStorage.removeItem("token");
-  window.location.href = "login.html";
+  window.location.href = "auth.html";
 }
 
 function isAuthenticated() {
