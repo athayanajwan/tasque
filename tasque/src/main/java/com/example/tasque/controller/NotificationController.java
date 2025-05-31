@@ -2,36 +2,37 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
+package com.example.tasque.controller;
+
+import com.example.tasque.model.*;
+import com.example.tasque.service.NotificationService;
+import com.example.tasque.util.CurrentUserUtil;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
 
 /**
  *
  * @author regianyogaswara
  */
-package com.example.tasque.controller;
-
-import com.example.tasque.dto.NotificationDTO;
-import com.example.tasque.model.Notification;
-import com.example.tasque.service.NotificationService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/notifications")
+@RequiredArgsConstructor
 public class NotificationController {
 
-    @Autowired
-    private NotificationService service;
+    private final NotificationService notificationService;
+    private final CurrentUserUtil currentUserUtil;
 
-    @PostMapping
-    public Notification createNotification(@RequestBody NotificationDTO dto) {
-        return service.createNotification(dto);
+    @GetMapping
+    public List<Notification> getMyNotifications() {
+        User currentUser = currentUserUtil.getCurrentUser();
+        return notificationService.getUserNotifications(currentUser.getId());
     }
 
-    @GetMapping("/{userId}")
-    public List<Notification> getUserNotifications(@PathVariable String userId) {
-        return service.getNotificationsByUser(userId);
+    @PutMapping("/{id}/read")
+    public void markAsRead(@PathVariable String id) {
+        notificationService.markAsRead(id);
     }
+
 }
-
