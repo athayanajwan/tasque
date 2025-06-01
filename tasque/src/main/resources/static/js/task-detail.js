@@ -34,9 +34,12 @@ if (!token || !taskId) {
     .then(project => {
       const member = project.members.find(m => m.userId === currentUserId);
       isManager = member?.role === "PROJECT_MANAGER";
+      
+      
       if (isManager || isAssignedTo) {
-        showEditForm(isManager);
+        showEditForm(isManager, assignedTo);
       }
+      updateBackToProjectLink();
     })
     .catch(err => {
       document.getElementById("taskDescription").textContent = "Gagal memuat: " + err.message;
@@ -83,12 +86,17 @@ if (task.tags && task.tags.length > 0) {
   document.getElementById("tags").value = task.tags?.map(t => t.name).join(", ") || "";
 }
 
-function showEditForm(manager) {
+function showEditForm(manager, assignedTo) {
   document.getElementById("taskEdit").style.display = "block";
   if (!manager) {
     ["title", "description", "assignedTo", "priority", "start", "deadline", "tags"].forEach(id => {
       document.getElementById(id).disabled = true;
     });
+  }
+  if (!assignedTo){
+     ["title", "description", "assignedTo", "priority", "start", "deadline", "tags", "status"].forEach(id => {
+      document.getElementById(id).disabled = true;
+    }); 
   }
   document.getElementById("editTaskForm").addEventListener("submit", function (e) {
     e.preventDefault();
@@ -98,8 +106,8 @@ function showEditForm(manager) {
       status: document.getElementById("status").value,
       priority: document.getElementById("priority").value,
       assignedTo: document.getElementById("assignedTo").value,
-      start: new Date(document.getElementById("start").value).toISOString(),
-      deadline: new Date(document.getElementById("deadline").value).toISOString(),
+      start: document.getElementById("start").value,
+      deadline: document.getElementById("deadline").value,
       projectId: projectId,
       tagNames: document.getElementById("tags").value.split(",").map(t => t.trim()).filter(Boolean)
     };
@@ -136,7 +144,7 @@ function renderComments(comments, currentUserId, isManager) {
     const deleteBtn = (comment.author.id === currentUserId || isManager)
       ? `<button onclick=\"deleteComment('${comment.id}')\">Hapus</button>` : "";
     div.innerHTML = `
-      <p><strong>${comment.author.name}${authorRole}</strong> <small>${new Date(comment.createdAt).toLocaleString()}</small></p>
+      <p><strong>${comment.author.name}${authorRole}</strong> <small>${comment.createdAt}</small></p>
       <p>${comment.content}</p>
       ${deleteBtn}
     `;
@@ -180,3 +188,18 @@ function deleteComment(commentId) {
     })
     .catch(err => alert("Error: " + err.message));
 }
+
+function loadTaskAndComments() {
+fetch(`http://localhost:8080/api/tasks/${taskId}`, {
+    headers: { "Authorization": "Bearer " + token }
+  })
+  .then(res => res.json())
+  .then(task => {
+    updateTaskView(task);
+    renderComments(task.comments, currentUserId, isManager);
+  })
+  .catch(err => {
+    alert("Gagal memuat ulang data tugas: " + err.message);
+  });
+}
+

@@ -200,15 +200,19 @@
     </div>
   </div>
 </div>
-
+    </div>
     <!-- Tab Edit -->
     <div class="tab-pane fade" id="tabEdit">
       <div id="projectActions">
         <h4>Edit Proyek</h4>
         <form id="editProjectForm" class="row g-3 mb-4">
-          <div class="col-md-6">
+          <div class="col-md-12">
             <label for="editName" class="form-label">Nama Proyek</label>
             <input type="text" class="form-control" id="editName" required>
+          </div>
+          <div class="col-md-6">
+            <label for="editStart" class="form-label">Waktu Mulai</label>
+            <input type="datetime-local" class="form-control" id="editStart" required>
           </div>
           <div class="col-md-6">
             <label for="editDeadline" class="form-label">Tenggat Waktu</label>
@@ -222,6 +226,7 @@
             <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
           </div>
         </form>
+
 
         <h4>Buat Tugas Baru</h4>
         <form id="createTaskForm" class="row g-3 mb-4">

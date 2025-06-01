@@ -11,19 +11,24 @@ let currentProject = null;
 let isManager = false;
 let ganttInstance = null;
 
-function toDateTimeLocal(isoString) {
-  const date = new Date(isoString);
-  const pad = (num) => num.toString().padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-}
 
-function formatDateTime(iso) {
-  const date = new Date(iso);
-  return date.toLocaleString("id-ID", {
-    weekday: 'long', year: 'numeric', month: 'long',
-    day: 'numeric', hour: '2-digit', minute: '2-digit'
+function formatDateTime(localDateTimeStr) {
+  const [datePart, timePart] = localDateTimeStr.split('T');
+  const [year, month, day] = datePart.split('-').map(Number);
+  const [hour, minute] = timePart.split(':').map(Number);
+
+  const localDate = new Date(year, month - 1, day, hour, minute);
+
+  return localDate.toLocaleString("id-ID", {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
   });
 }
+
 
 function formatRole(role) {
   switch (role) {
@@ -57,21 +62,21 @@ function renderTaskVisuals(tasks) {
     ganttTasks.push({
       id: `project-${currentProject.id}`,
       name: `[PROYEK] ${currentProject.name}`,
-      start: new Date(currentProject.start).toISOString(),
-      end: new Date(currentProject.deadline).toISOString(),
+      start: currentProject.start,
+      end: currentProject.deadline,
       progress: percentDone,
       custom_class: "bar-project"
     });
   }
 
   ganttTasks.push(...tasks.filter(task => task.deadline).map(task => {
-    const startDate = new Date(task.start || task.deadline);
-    const endDate = new Date(task.deadline || task.start);
+    const startDate = task.start || task.deadline;
+    const endDate = task.deadline || task.start;
     return {
       id: task.id,
       name: task.title || "Untitled",
-      start: startDate.toISOString(),
-      end: endDate.toISOString(),
+      start: startDate,
+      end: endDate,
       progress: task.status === "COMPLETED" ? 100 : task.status === "IN_PROGRESS" ? 50 : task.status === "REVIEW" ? 75 : 0,
       custom_class: "bar-" + (task.status?.toLowerCase() || "")
     };
@@ -87,7 +92,7 @@ function renderTaskVisuals(tasks) {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ ...task, deadline: end.toISOString() })
+        body: JSON.stringify({ ...task, deadline: end })
       })
       .then(res => res.ok ? alert("Tanggal tugas diperbarui") : Promise.reject("Gagal update tanggal"))
       .catch(err => alert("Gagal update tanggal: " + err));
@@ -201,7 +206,8 @@ document.getElementById("editProjectForm").onsubmit = function (e) {
   const updated = {
     name: document.getElementById("editName").value,
     description: document.getElementById("editDescription").value,
-    deadline: new Date(document.getElementById("editDeadline").value).toISOString()
+    start: document.getElementById("editStart").value,
+    deadline: document.getElementById("editDeadline").value
   };
 
   fetch(`http://localhost:8080/api/projects/${projectId}`, {
@@ -258,8 +264,8 @@ document.getElementById("createTaskForm").onsubmit = function (e) {
     status: document.getElementById("taskStatus").value,
     priority: document.getElementById("taskPriority").value,
     assignedTo: document.getElementById("assignedTo").value,
-    deadline: new Date(document.getElementById("deadlineInput").value).toISOString(),
-    start: new Date(document.getElementById("startInput").value).toISOString(),
+    deadline: document.getElementById("deadlineInput").value,
+    start: document.getElementById("startInput").value,
     projectId: projectId,
     tagNames: document.getElementById("taskTags").value.split(",").map(t => t.trim()).filter(t => t)
   };
@@ -298,8 +304,12 @@ fetch("http://localhost:8080/api/users/me", {
   currentProject = project;
   const currentMember = project.members?.find(m => m.userId === currentUserId);
   isManager = currentMember?.role === "PROJECT_MANAGER";
+  document.getElementById("editName").value = project.name;
+  document.getElementById("editDescription").value = project.description;
+  document.getElementById("editStart").value = project.start;
+  document.getElementById("editDeadline").value = project.deadline;
 
-  document.getElementById("projectCard").innerHTML = `
+  document.getElementById("projectCard").innerHTML =` 
   <div class="project-card">
     <div class="project-header">
       <i class="bi bi-clipboard-check"></i>
@@ -308,16 +318,15 @@ fetch("http://localhost:8080/api/users/me", {
 
     <div class="project-deadline-label text-end">Deadline
       <div class="project-deadline-date">
-        ${new Date(project.deadline).toLocaleDateString("id-ID", {
-          weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
-        })}
+        ${formatDateTime(project.deadline)}
       </div>
     </div>
 
     <div class="project-title">${project.name}</div>
     <div class="project-meta">Oleh, ${project.createdBy} &nbsp;&nbsp;&nbsp; ${formatDateTime(project.start)}</div>
-  </div>
-`;
+  </div>`
+;
+
 
 document.getElementById("projectDescription").textContent = project.description;
 
