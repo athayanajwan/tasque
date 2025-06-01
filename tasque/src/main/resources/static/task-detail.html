@@ -1,272 +1,222 @@
 <!DOCTYPE html>
-<!--
-Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
-Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
--->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>Detail Tugas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <style>
-    body { font-family: Arial; padding: 20px; }
-    .label { font-weight: bold; }
+    .header-card {
+      background: linear-gradient(to left, #9d4edd, #7b2cbf);
+      color: white;
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .deadline-badge {
+      background-color: #fcbf49;
+      color: #212529;
+      font-weight: bold;
+    }
+    .nav-tabs .nav-link.active {
+      font-weight: bold;
+      color: #7b2cbf;
+    }
+    .tag-badge {
+      background-color: #e9ecef;
+      border-radius: 0.5rem;
+      padding: 0.25rem 0.5rem;
+      margin-right: 0.25rem;
+    }
+    .overview-box span {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 0.25rem;
+    }
+    .overview-box .form-control[readonly] {
+      background-color: #f8f9fa;
+      border: 1px solid #ccc;
+      padding-left: 0.5rem;
+      font-weight: 500;
+    }
+    .status-badge, .priority-badge {
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+      padding: 0.5rem;
+      font-weight: bold;
+      border-radius: 0.5rem;
+    }
+    .status-badge {
+      background-color: #51cf66;
+      color: #fff;
+    }
+    .priority-badge {
+      background-color: #ffe066;
+      color: #000;
+      border: 2px solid #4caf50;
+    }
+    .tag-badge {
+        background-color: #6c757d;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        font-weight: 600;
+        border-radius: 0.5rem;
+        display: inline-block;
+    }
+    .btn-purple {
+      background-color: #7b2cbf;
+      color: #fff;
+    }
+    .btn-purple:hover {
+      background-color: #5a189a;
+      color: #fff;
+    }
   </style>
 </head>
-<body>
-  <h1>Detail Tugas</h1>
-  <div id="taskView">Memuat data tugas...</div>
-  
-  <div id="commentSection">
-  <h3>Komentar</h3>
-  <div id="commentList">Memuat komentar...</div>
+<body class="bg-light p-3">
+  <div class="container">
+    <div class="header-card">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h1 class="mb-1"><i class="bi bi-clipboard"></i> Detail Tugas</h1><br>
+          <h2 class="fw-bold" id="taskTitle">&nbsp;</h2>
+        </div>
+      </div>
+    </div>
 
-  <div id="addCommentForm" style="margin-top: 1em;">
-    <textarea id="newComment" rows="3" style="width: 100%;" placeholder="Tulis komentar..."></textarea>
-    <button onclick="addComment()">Kirim Komentar</button>
+    <ul class="nav nav-tabs mb-3" id="taskTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="tugas-tab" data-bs-toggle="tab" data-bs-target="#tugas" type="button" role="tab">Tugas</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="edit-tab" data-bs-toggle="tab" data-bs-target="#edit" type="button" role="tab">Edit</button>
+      </li>
+    </ul>
+
+    <div class="tab-content" id="taskTabContent">
+      <!-- Tab Tugas -->
+      <div class="tab-pane fade show active" id="tugas" role="tabpanel">
+        <div class="row g-3 mb-4">
+          <div class="col-md-6 d-flex">
+            <div class="card p-3 w-100 h-100">
+              <h5 class="fw-bold">Deskripsi</h5>
+              <p id="taskDescription" class="mb-0">Memuat data tugas...</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card p-3 overview-box">
+              <h5 class="fw-bold">Overview</h5>
+              <div class="row">
+                <div class="col-6 mb-2">
+                  <span>Status</span>
+                  <div id="taskStatus" class="status-badge">To Do</div>
+                </div>
+                <div class="col-6 mb-2">
+                  <span>Prioritas</span>
+                  <div id="taskPriority" class="priority-badge">Low</div>
+                </div>
+                <div class="col-6 mb-2">
+                  <span>Mulai</span>
+                  <input type="text" class="form-control" id="taskStartDate" readonly>
+                </div>
+                <div class="col-6 mb-2">
+                  <span>Jam Mulai</span>
+                  <input type="text" class="form-control" id="taskStartTime" readonly>
+                </div>
+                <div class="col-6 mb-2">
+                  <span>Tenggat Waktu</span>
+                  <input type="text" class="form-control" id="taskDeadlineDate" readonly>
+                </div>
+                <div class="col-6 mb-2">
+                  <span>Jam Tenggat</span>
+                  <input type="text" class="form-control" id="taskDeadlineTime" readonly>
+                </div>
+                <div class="col-12 mb-2">
+                  <span>Assign To</span>
+                  <input type="text" class="form-control" id="taskAssignedTo" readonly>
+                </div>
+                <div class="col-12">
+                    <span>Tags</span>
+                    <div id="taskTags" class="d-flex flex-wrap gap-2"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Komentar -->
+        <div class="card p-3">
+          <h5>Komentar</h5>
+          <div id="commentSection">
+            <div id="commentList">Memuat komentar...</div>
+            <div id="addCommentForm" class="mt-3">
+              <textarea id="newComment" rows="3" class="form-control mb-2" placeholder="Tulis komentar..."></textarea>
+              <button class="btn btn-purple" onclick="addComment()">Kirim Komentar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Edit -->
+      <div class="tab-pane fade" id="edit" role="tabpanel">
+        <div id="taskEdit">
+          <div class="card p-4">
+            <h5>Edit Tugas</h5>
+            <form id="editTaskForm">
+              <div class="mb-3">
+                <label class="form-label">Judul</label>
+                <input type="text" class="form-control" id="title" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Deskripsi</label>
+                <textarea class="form-control" id="description" required></textarea>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Assigned To (username)</label>
+                <input type="text" class="form-control" id="assignedTo" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Status</label>
+                <select class="form-select" id="status" required>
+                  <option value="TO_DO">To Do</option>
+                  <option value="IN_PROGRESS">In Progress</option>
+                  <option value="REVIEW">Review</option>
+                  <option value="COMPLETED">Selesai</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Prioritas</label>
+                <select class="form-select" id="priority" required>
+                  <option value="LOW">Low</option>
+                  <option value="MEDIUM">Medium</option>
+                  <option value="HIGH">High</option>
+                  <option value="URGENT">Urgent</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Start</label>
+                <input type="datetime-local" class="form-control" id="start" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Deadline</label>
+                <input type="datetime-local" class="form-control" id="deadline" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Tags (pisahkan dengan koma)</label>
+                <input type="text" class="form-control" id="tags" />
+              </div>
+              <button type="submit" class="btn btn-purple w-100">Simpan</button>
+            </form>
+            
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
-  
-  <!-- Form Edit Tugas -->
-  <div id="taskEdit" style="display:none;">
-    <h3>Edit Tugas</h3>
-    <form id="editTaskForm">
-      <p><span class="label">Judul:</span><br><input type="text" id="title" required /></p>
-      <p><span class="label">Deskripsi:</span><br><textarea id="description" required></textarea></p>
-      <p><span class="label">Assigned To (username):</span><br><input type="text" id="assignedTo" required /></p>
-      <p><span class="label">Status:</span>
-        <select id="status" required>
-          <option value="TO_DO">To Do</option>
-          <option value="IN_PROGRESS">In Progress</option>
-          <option value="REVIEW">Review</option>
-          <option value="COMPLETED">Selesai</option>
-        </select>
-      </p>
-      <p><span class="label">Prioritas:</span>
-        <select id="priority" required>
-          <option value="LOW">Low</option>
-          <option value="MEDIUM">Medium</option>
-          <option value="HIGH">High</option>
-          <option value="URGENT">Urgent</option>
-        </select>
-      </p>
-      <p><span class="label">Start:</span><br><input type="datetime-local" id="start" required /></p>
-      <p><span class="label">Deadline:</span><br><input type="datetime-local" id="deadline" required /></p>
-      <p><span class="label">Tags (pisahkan dengan koma):</span><br><input type="text" id="tags" /></p>
-      <button type="submit">Simpan</button>
-    </form>
-  </div>
 
-  <script>
-    const token = localStorage.getItem("token");
-    const urlParams = new URLSearchParams(window.location.search);
-    const taskId = urlParams.get("id");
-    let isManager = false;
-    let projectId = null;
-    let currentUserId = null;
-    let isAssignedTo = false;
-    
-    if (!token || !taskId) {
-      document.getElementById("taskView").textContent = "Token atau ID tidak ditemukan.";
-    } else {
-      
-
-      fetch("http://localhost:8080/api/users/me", {
-        headers: { "Authorization": "Bearer " + token }
-      })
-      .then(res => {
-        if (!res.ok) throw new Error(`Gagal memuat data pengguna. Status: ${res.status}`);
-        return res.json();
-      })
-      .then(user => {
-        currentUserId = user.id;
-        return fetch(`http://localhost:8080/api/tasks/${taskId}`, {
-          headers: { "Authorization": "Bearer " + token }
-        });
-      })
-      .then(res => res.json())
-      .then(task => {
-        projectId = task.project.id;
-        isAssignedTo = task.assignedTo?.id === currentUserId;
-
-        displayTaskDetails(task);
-        renderComments(task.comments, currentUserId, isManager);
-        return fetch(`http://localhost:8080/api/projects/${projectId}`, {
-          headers: { "Authorization": "Bearer " + token }
-        });
-      })
-      .then(res => res.json())
-      .then(project => {
-        const member = project.members.find(m => m.userId === currentUserId);
-        isManager = member?.role === "PROJECT_MANAGER";
-        if (isManager || isAssignedTo) {
-            showEditForm(isManager);
-        }
-      })
-      .catch(err => {
-        document.getElementById("taskView").textContent = "Gagal memuat: " + err.message;
-      });
-    }
-
-    function displayTaskDetails(task) {
-      console.log(task);
-      const view = document.getElementById("taskView");
-      view.innerHTML = `
-        <p><strong>Judul:</strong> ${task.title}</p>
-        <p><strong>Deskripsi:</strong> ${task.description || "-"}</p>
-        <p><strong>Status:</strong> ${task.status}</p>
-        <p><strong>Prioritas:</strong> ${task.priority}</p>
-        <p><strong>Start:</strong> ${task.start ? task.start.replace("T", " ") : "-"}</p>
-        <p><strong>Deadline:</strong> ${task.deadline ? task.deadline.replace("T", " ") : "-"}</p>
-        <p><strong>Assigned To:</strong> ${task.assignedTo.name || "-"}</p>
-        <p><strong>Tags:</strong> ${task.tags?.map(t => t.name).join(", ") || "-"}</p>
-      `;
-
-      // Isi form edit
-      document.getElementById("title").value = task.title;
-      document.getElementById("description").value = task.description || "";
-      document.getElementById("assignedTo").value = task.assignedTo.name || "";
-      document.getElementById("status").value = task.status;
-      document.getElementById("priority").value = task.priority;
-      document.getElementById("start").value = task.start ? task.start.slice(0, 16) : "";
-      document.getElementById("deadline").value = task.deadline ? task.deadline.slice(0, 16) : "";
-      document.getElementById("tags").value = task.tags?.map(t => t.name).join(", ") || "";
-    }
-
-    function showEditForm(isManager) {
-      document.getElementById("taskEdit").style.display = "block";
-
-      if (!isManager) {
-        document.getElementById("title").disabled = true;
-        document.getElementById("description").disabled = true;
-        document.getElementById("assignedTo").disabled = true;
-        document.getElementById("priority").disabled = true;
-        document.getElementById("start").disabled = true;
-        document.getElementById("deadline").disabled = true;
-        document.getElementById("tags").disabled = true;
-      }
-
-      document.getElementById("editTaskForm").addEventListener("submit", function (e) {
-        e.preventDefault();
-
-        const updatedData = {
-          title: document.getElementById("title").value,
-          description: document.getElementById("description").value,
-          status: document.getElementById("status").value,
-          priority: document.getElementById("priority").value,
-          assignedTo: document.getElementById("assignedTo").value,  
-          start: new Date(document.getElementById("start").value).toISOString(),
-          deadline: new Date(document.getElementById("deadline").value).toISOString(),
-          projectId: projectId,
-          tagNames: document.getElementById("tags").value
-            .split(",")
-            .map(tag => tag.trim())
-            .filter(tag => tag.length > 0)
-        };
-        console.log(updatedData);
-        fetch(`http://localhost:8080/api/tasks/${taskId}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + token
-          },
-          body: JSON.stringify(updatedData)
-        })
-        .then(res => {
-          if (!res.ok) throw new Error("Gagal mengupdate tugas.");
-          return res.json();
-        })
-        .then(() => {
-          alert("Tugas berhasil diperbarui!");
-          location.reload();
-        })
-        .catch(err => {
-          alert("Error: " + err.message);
-        });
-      });
-    }
-    
-    function renderComments(comments, currentUserId, isManager) {
-  const list = document.getElementById("commentList");
-  if (!comments || comments.length === 0) {
-    list.innerHTML = "<p>Belum ada komentar.</p>";
-    return;
-  }
-
-  list.innerHTML = "";
-  comments.forEach(comment => {
-    const commentDiv = document.createElement("div");
-    commentDiv.style.borderBottom = "1px solid #ddd";
-    commentDiv.style.marginBottom = "10px";
-    commentDiv.style.padding = "5px 0";
-
-    const authorRole = comment.author.role ? ` (${comment.author.role})` : "";
-    const deleteButton = (comment.author.id === currentUserId || isManager)
-      ? `<button onclick="deleteComment('${comment.id}')">Hapus</button>` : "";
-
-    commentDiv.innerHTML = `
-      <p><strong>${comment.author.name}${authorRole}</strong> <small>${new Date(comment.createdAt).toLocaleString()}</small></p>
-      <p>${comment.content}</p>
-      ${deleteButton}
-    `;
-
-    list.appendChild(commentDiv);
-  });
-}
-
-function addComment() {
-  const content = document.getElementById("newComment").value.trim();
-  if (!content) return alert("Komentar tidak boleh kosong.");
-
-  fetch(`http://localhost:8080/api/tasks/${taskId}/comments?userId=${currentUserId}`, {
-    method: "POST",
-    headers: {
-      "Authorization": "Bearer " + token,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ content })
-  })
-  .then(res => {
-    if (!res.ok) throw new Error("Gagal menambahkan komentar.");
-    return res.json();
-  })
-  .then(() => {
-    document.getElementById("newComment").value = "";
-    return loadTaskAndComments(); // Reload task to refresh comments
-  })
-  .catch(err => alert("Error: " + err.message));
-}
-
-function deleteComment(commentId) {
-  if (!confirm("Hapus komentar ini?")) return;
-
-  fetch(`http://localhost:8080/api/tasks/${taskId}/comments/${commentId}?userId=${currentUserId}`, {
-    method: "DELETE",
-    headers: {
-      "Authorization": "Bearer " + token
-    }
-  })
-  .then(res => {
-    if (!res.ok) throw new Error("Gagal menghapus komentar.");
-    return loadTaskAndComments();
-  })
-  .catch(err => alert("Error: " + err.message));
-}
-
-function loadTaskAndComments() {
-  fetch(`http://localhost:8080/api/tasks/${taskId}`, {
-    headers: { "Authorization": "Bearer " + token }
-  })
-  .then(res => res.json())
-  .then(task => {
-    displayTaskDetails(task);
-    renderComments(task.comments, currentUserId, isManager);
-  })
-  .catch(err => {
-    alert("Gagal memuat ulang data tugas: " + err.message);
-  });
-}
-
-
-  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/task-detail.js"></script>
 </body>
 </html>
