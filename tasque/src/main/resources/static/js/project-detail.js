@@ -1,7 +1,7 @@
-// Full perbaikan project-detail.js
+// project-detail.js
 
 if (!isAuthenticated()) {
-  window.location.href = "auth.html";
+  window.location.href = "login.html";
 }
 
 const token = localStorage.getItem("token");
@@ -41,6 +41,7 @@ function renderTaskVisuals(tasks) {
     else if (task.status === "COMPLETED") done++;
   });
 
+   console.log('Counts:', {todo, inProgress, done});
   const total = tasks.length;
   const percentDone = total > 0 ? Math.round((done / total) * 100) : 0;
 
@@ -195,45 +196,134 @@ document.getElementById("tagFilter").addEventListener("change", function () {
   loadTasks(this.value);
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-  fetch("http://localhost:8080/api/users/me", {
+document.getElementById("editProjectForm").onsubmit = function (e) {
+  e.preventDefault();
+  const updated = {
+    name: document.getElementById("editName").value,
+    description: document.getElementById("editDescription").value,
+    deadline: new Date(document.getElementById("editDeadline").value).toISOString()
+  };
+
+  fetch(`http://localhost:8080/api/projects/${projectId}`, {
+    method: "PUT",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(updated)
+  })
+  .then(res => res.ok ? location.reload() : res.text().then(msg => Promise.reject(msg)))
+  .catch(err => alert("Gagal menyimpan perubahan: " + err));
+};
+
+document.getElementById("deleteBtn").addEventListener("click", () => {
+  if (!confirm("Yakin ingin menghapus proyek ini?")) return;
+
+  fetch(`http://localhost:8080/api/projects/${projectId}`, {
+    method: "DELETE",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json"
+    }
+  })
+  .then(res => res.ok ? window.location.href = "dashboard.html" : res.text().then(msg => Promise.reject(msg)))
+  .catch(err => alert("Gagal menghapus proyek: " + err));
+});
+
+document.getElementById("inviteForm").onsubmit = function (e) {
+  e.preventDefault();
+  const username = document.getElementById("inviteUsername").value;
+  const role = document.getElementById("inviteRole").value;
+
+  fetch(`http://localhost:8080/api/users/${encodeURIComponent(username)}`, {
     headers: { "Authorization": `Bearer ${token}` }
   })
-  .then(res => res.json())
+  .then(res => res.ok ? res.json() : Promise.reject("Pengguna tidak ditemukan"))
   .then(user => {
-    currentUserId = user.id;
-    return fetch(`http://localhost:8080/api/projects/${projectId}`, {
+    fetch(`http://localhost:8080/api/projects/${projectId}/members?username=${encodeURIComponent(user.username)}&role=${role}`, {
+      method: "POST",
       headers: { "Authorization": `Bearer ${token}` }
     })
-    .then(res => res.json())
-    .then(project => {
-      currentProject = project;
-      const currentMember = project.members?.find(m => m.userId === currentUserId);
-      isManager = currentMember?.role === "PROJECT_MANAGER" || project.createdBy === user.username;
-
-      document.getElementById("projectDetails").innerHTML = `
-        <div class="alert alert-light">
-          <strong>Nama:</strong> ${project.name} <br>
-          <strong>Dibuat oleh:</strong> ${project.createdBy} <br>
-          <strong>Dibuat pada:</strong> ${formatDateTime(project.createdAt)} <br>
-          <strong>Deadline:</strong> ${formatDateTime(project.deadline)}
-        </div>
-      `;
-
-      const actionsEl = document.getElementById("projectActions");
-      if (actionsEl) actionsEl.style.display = isManager ? "block" : "none";
-
-      document.getElementById("projectDescription").textContent = project.description;
-
-      document.getElementById("editName").value = project.name;
-      document.getElementById("editDeadline").value = toDateTimeLocal(project.deadline);
-      document.getElementById("editDescription").value = project.description;
-
-      loadMembers(project.members);
-      loadTasks();
-    });
+    .then(res => res.ok ? location.reload() : res.text().then(msg => Promise.reject(msg)))
+    .catch(err => alert("Gagal menambahkan: " + err));
   })
-  .catch(err => {
-    document.getElementById("projectDetails").textContent = "Gagal memuat data: " + err.message;
+  .catch(err => alert("Gagal memuat data pengguna: " + err));
+};
+
+document.getElementById("createTaskForm").onsubmit = function (e) {
+  e.preventDefault();
+  const taskData = {
+    title: document.getElementById("taskTitle").value,
+    description: document.getElementById("taskDescription").value,
+    status: document.getElementById("taskStatus").value,
+    priority: document.getElementById("taskPriority").value,
+    assignedTo: document.getElementById("assignedTo").value,
+    deadline: new Date(document.getElementById("deadlineInput").value).toISOString(),
+    start: new Date(document.getElementById("startInput").value).toISOString(),
+    projectId: projectId,
+    tagNames: document.getElementById("taskTags").value.split(",").map(t => t.trim()).filter(t => t)
+  };
+  console.log(taskData);
+
+  fetch("http://localhost:8080/api/tasks", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(taskData)
+  })
+  .then(res => res.ok ? res.json() : res.text().then(msg => Promise.reject(msg)))
+  .then(() => {
+    alert("Tugas berhasil ditambahkan.");
+    document.getElementById("createTaskForm").reset();
+    loadTasks();
+  })
+  .catch(err => alert("Gagal menambahkan tugas: " + err));
+};
+
+// Load project & user
+fetch("http://localhost:8080/api/users/me", {
+  headers: { "Authorization": `Bearer ${token}` }
+})
+.then(res => res.json())
+.then(user => {
+  currentUserId = user.id;
+  return fetch(`http://localhost:8080/api/projects/${projectId}`, {
+    headers: { "Authorization": `Bearer ${token}` }
   });
+})
+.then(res => res.json())
+.then(project => {
+  currentProject = project;
+  const currentMember = project.members?.find(m => m.userId === currentUserId);
+  isManager = currentMember?.role === "PROJECT_MANAGER";
+
+  document.getElementById("projectCard").innerHTML = `
+  <div class="project-card">
+    <div class="project-header">
+      <i class="bi bi-clipboard-check"></i>
+      <span>Detail Proyek</span>
+    </div>
+
+    <div class="project-deadline-label text-end">Deadline
+      <div class="project-deadline-date">
+        ${new Date(project.deadline).toLocaleDateString("id-ID", {
+          weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+        })}
+      </div>
+    </div>
+
+    <div class="project-title">${project.name}</div>
+    <div class="project-meta">Oleh, ${project.createdBy} &nbsp;&nbsp;&nbsp; ${formatDateTime(project.start)}</div>
+  </div>
+`;
+
+document.getElementById("projectDescription").textContent = project.description;
+
+  loadMembers(project.members);
+  loadTasks();
+})
+.catch(err => {
+  document.getElementById("projectDetails").textContent = "Gagal memuat data: " + err.message;
 });
